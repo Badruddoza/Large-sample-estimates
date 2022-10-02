@@ -1,0 +1,21 @@
+rm(list=ls())
+library(tidyverse)
+
+res<-c()
+for(n in seq(100,100000,1000)){
+#n<-10000
+k<-3
+b<-runif(k)
+x<-matrix(rnorm(n*k),nrow=n,ncol=k)
+e<-rnorm(n)
+y<-1+x%*%b+e
+reg<-lm(y~x)
+res<-c(res, abs(unname(reg$coefficients)-c(1,b)) )
+}
+dt<-data.frame(matrix(res, ncol=k+1, byrow=T)) %>% 
+  rowid_to_column("iter") %>% 
+  pivot_longer(!iter,names_to = "var", values_to = "bias")
+
+ggplot(dt,aes(x=as.factor(iter),y=bias,group=as.factor(var),color=as.factor(var) ))+
+  geom_line()+theme_classic()
+  
